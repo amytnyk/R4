@@ -1,5 +1,6 @@
-# 4D Raytracing
+[![Tests](https://github.com/amytnyk/r4/actions/workflows/build.yml/badge.svg)](https://github.com/amytnyk/r4/actions/workflows/build.yml)
 
+# 4D Raytracing
 
 ### Compilation
 
