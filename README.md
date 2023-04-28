@@ -21,8 +21,7 @@ cmake --build .
 Rendering 3D image:
 ```shell
 mkdir output
-./bin/ray4 -b24 -a1:1:1 -s_:_:_ -r512:512:512 -iinputs.r4/dots4.r4
--ooutput/dots4.r4img
+./bin/ray4 -b24 -a1:1:1 -s_:_:_ -r512:512:512 -iinputs.r4/dots4.r4 -ooutput/dots4.r4img
 ```
 
 Interactive 3D image slice viewer:
