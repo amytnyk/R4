@@ -20,8 +20,7 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
                 --current_plane;
             else if (key == GLFW_KEY_RIGHT)
                 ++current_plane;
-            else
-                current_plane = std::min(current_plane, depth - 1);
+            current_plane = std::min(current_plane, depth - 1);
             current_plane = std::max(0, current_plane);
         }
     }
