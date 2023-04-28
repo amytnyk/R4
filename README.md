@@ -1,4 +1,5 @@
-[![Tests](https://github.com/amytnyk/r4/actions/workflows/build.yml/badge.svg)](https://github.com/amytnyk/r4/actions/workflows/build.yml)
+[![Ubuntu Tests](https://github.com/amytnyk/r4/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/amytnyk/r4/actions/workflows/ubuntu.yml)
+[![Arch Tests](https://github.com/amytnyk/r4/actions/workflows/arch.yml/badge.svg)](https://github.com/amytnyk/r4/actions/workflows/arch.yml)
 
 # 4D Raytracing
 
