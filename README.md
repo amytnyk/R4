@@ -26,7 +26,7 @@ mkdir output
 ./bin/ray4 -b24 -a1:1:1 -s_:_:_ -r512:512:512 -iinputs.r4/dots4.r4 -ooutput/dots4.r4img
 ```
 
-Interactive 3D image slice viewer:
+Interactive 3D image slice viewer (use left and right arrow keys to navigate):
 ```shell
 ./bin/r4display output/dots4.r4img
 ```
