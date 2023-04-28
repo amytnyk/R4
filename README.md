@@ -8,13 +8,13 @@
 Ubuntu
 ```shell
 sudo apt-get update
-sudo apt-get install build-essential cmake gcc g++ freeglut3-dev libglfw3-dev libglew-dev libfmt-dev
+sudo apt-get install build-essential cmake gcc g++ freeglut3-dev libglfw3-dev libfmt-dev
 ```
 
 Arch
 ```shell
 pacman -Syu
-pacman -S base-devel cmake gcc freeglut glfw-x11 glew fmt
+pacman -S base-devel cmake gcc freeglut glfw-x11 fmt
 ```
 
 ### Build
