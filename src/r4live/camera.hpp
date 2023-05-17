@@ -10,22 +10,23 @@ class Camera {
 public:
     using vec_type = VecType;
 
-    __host__ __device__ Camera(const View<VecType>& view, double aspect_ratio) {
-        float theta = view.fov * ((float) PI) / 180.0f;
+    __host__ __device__ explicit Camera(const View<VecType>& view, const RayGrid<VecType>& ray_grid): view{view} {
+        VecType los = view.direction.direction().normalized();
 
-        left_top = view.origin();
+        VecType gz = cross(Array<VecType>{view.over, view.up, los}).normalized();
+        VecType gy = cross(gz, los, view.over).normalized();
+
+        gnx = 2 * view.direction.direction().norm() * std::tan(view.angle / 2 * PI / 180);
+
+        gorigin = to - (gx + gy + gz) / 2 + (gx / res.x() + gy / res.y() + gz / res.z()) / 2;
     }
 
-    __host__ __device__ inline auto ray_to(size_t x, size_t y, size_t z) const {
-        return Ray<VecType>{left_top,
-                            horizontal * static_cast<VecType::value_type>(x) +
-                            vertical * static_cast<VecType::value_type>(y)};
+    __host__ __device__ inline auto ray_to(const VecType& relative_direction) const {
+        return Ray<VecType>{};
     }
 
 private:
-    VecType left_top;
-    VecType horizontal;
-    VecType vertical;
+    View<VecType> view;
 };
 
 #endif // R4_CAMERA_HPP

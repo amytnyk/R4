@@ -16,22 +16,22 @@
 #include <objects/tetrahedron.hpp>
 #include <objects/entity_list.hpp>
 
-void attribute_parse(Material &attr, std::stringstream &str_stream) {
+void attribute_parse(Material &material, std::stringstream &str_stream) {
     std::string key;
     str_stream >> key;
     while (key != ")") {
         if (key == "reflect")
-            str_stream >> attr.reflect;
+            str_stream >> material.reflect;
         else if (key == "shine")
-            str_stream >> attr.shine;
+            str_stream >> material.shine;
         else if (key == "transpar")
-            str_stream >> attr.transparent;
+            str_stream >> material.transparent;
         else if (key == "specular")
-            str_stream >> attr.specular;
+            str_stream >> material.specular;
         else if (key == "ambient")
-            str_stream >> attr.ambient;
+            str_stream >> material.ambient;
         else if (key == "diffuse")
-            str_stream >> attr.diffuse;
+            str_stream >> material.diffuse;
         str_stream >> key;
     }
 }
@@ -110,13 +110,13 @@ struct World {
                 cur_light.color = last_color;
                 world.lights.push(cur_light);
             } else if (key == "attributes") {
-                Material attr;
+                Material material;
                 str_stream >> last_attr;
-                attribute_parse(attr, str_stream);
-                attr_dict[last_attr] = attr;
+                attribute_parse(material, str_stream);
+                attr_dict[last_attr] = material;
             } else if (key == "sphere") {
                 VecType center;
-                Material attr;
+                Material material;
                 bool found_attr = false;
                 while (key != ")") {
                     if (key == "center")
@@ -127,15 +127,15 @@ struct World {
                         found_attr = true;
                         str_stream >> key;
                         if (key == "(")
-                            attribute_parse(attr, str_stream);
+                            attribute_parse(material, str_stream);
                         else
-                            attr = attr_dict[key];
+                            material = attr_dict[key];
                     }
                     str_stream >> key;
                 }
                 if (!found_attr)
-                    attr = attr_dict[last_attr];
-                world.entities.addChild(new Sphere{center, last_radius, attr});
+                    material = attr_dict[last_attr];
+                world.entities.addChild(new Sphere{center, last_radius, material});
             } else if (key == "parallelpiped") {
                 Array<VecType, VecType::dim> dots;
                 Material attr;
@@ -159,7 +159,7 @@ struct World {
                 world.entities.addChild(new Parallelpiped<VecType>(dots, attr));
             } else if (key == "tetrahedron") {
                 Array<VecType, VecType::dim> dots;
-                Material attr;
+                Material material;
                 bool found_attr = false;
                 while (key != ")") {
                     if (key == "vertices") {
@@ -169,15 +169,15 @@ struct World {
                         found_attr = true;
                         str_stream >> key;
                         if (key == "(")
-                            attribute_parse(attr, str_stream);
+                            attribute_parse(material, str_stream);
                         else
-                            attr = attr_dict[key];
+                            material = attr_dict[key];
                     }
                     str_stream >> key;
                 }
                 if (!found_attr)
-                    attr = attr_dict[last_attr];
-                world.entities.addChild(new Tetrahedron<VecType>(dots, attr));
+                    material = attr_dict[last_attr];
+                world.entities.addChild(new Tetrahedron<VecType>(dots, material));
             }
         }
     }

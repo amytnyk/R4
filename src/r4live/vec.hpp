@@ -138,11 +138,11 @@ __host__ __device__ inline auto calculate_determinant(const Array<Vec<T, N>, N -
     return result;
 }
 
-template<typename T, size_t N>
-__host__ __device__ inline auto cross(const Array<Vec<T, N>, N - 1> &vectors) {
-    Vec<T, N> result;
-    Vec<bool, N> used(false);
-    for (size_t cur_pos = 0; cur_pos < N; ++cur_pos) {
+template<typename VecType>
+__host__ __device__ inline auto cross(const Array<VecType, VecType::dim - 1> &vectors) {
+    VecType result;
+    Vec<bool, VecType::dim> used(false);
+    for (size_t cur_pos = 0; cur_pos < VecType::dim; ++cur_pos) {
         used[cur_pos] = true;
         auto minor = calculate_determinant(vectors, used);
         if (cur_pos % 2 == 0)

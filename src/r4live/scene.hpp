@@ -5,17 +5,24 @@
 #include <fstream>
 #include <camera.hpp>
 #include <objects/entity.hpp>
+#include <sstream>
 
 template<typename VecType>
 class Scene {
 public:
-    __host__ __device__ Scene(const std::string &path) {
+    __host__ __device__ explicit Scene(const std::string &path) {
+        std::ifstream in{path};
+        std::ostringstream ss;
+        ss << in.rdbuf();
+        world = World<VecType>{ss.str()};
     }
 
-    __host__ __device__ Scene(const Camera<VecType> &camera, const Entity<VecType> &world) : camera{camera}, world{world} {}
-
-    __host__ __device__ Color rayCast(size_t x, size_t y, size_t z, size_t level) {
-        auto ray = world.camera.ray_to(x, y, z).forward();
+    __host__ __device__ Color rayTrace(const VecType &relative_direction) {
+        return world.camera.ray_to(relative_direction);
+    }
+private:
+    __host__ __device__ Color rayTrace(const Ray<VecType> &ray, size_t level = 0) {
+        ray = ray.forward();
 
         Hit<VecType> hit_record;
         if (!world.hit(ray, hit_record))
@@ -67,9 +74,10 @@ public:
 
                 if (hit_record.material->specular.present()) {
                     auto refl = 2 * tmp * hit_record.normal - light_direction;
-                    tmp = -refl * ray.direction();
+                    tmp = -refl.dot(ray.direction());
                     if (tmp > 0)
-                        color += tmp * hit_record.material->specular * light_color;
+                        color +=
+                                std::pow(tmp, hit_record.material->shine) * hit_record.material->specular * light_color;
                 }
             }
         }
@@ -77,22 +85,19 @@ public:
         if (world.max_depth && (level == world.max_depth))
             return color;
 
-        if (hit_record.material->transparent.present())
-        {
-            auto RefrD = std::lerp(n_dot_d * hit_record.normal, ray.direction(), global_indexref / nearattr->indexref);
-
-            color += RayTrace (hit_record.point, RefrD, level) * hit_record.material->transparent;
+        if (hit_record.material->transparent.present()) {
+            auto direction = std::lerp(n_dot_d * hit_record.normal, ray.direction(), 1);
+            color += rayTrace(Ray<VecType>(hit_record.point, direction), ++level)
+                     * hit_record.material->transparent;
         }
 
-        if (hit_record.material->reflect)
-        {
-            auto ReflD = ray.direction() - 2 * n_dot_d * hit_record.normal;
-
-            color += RayTrace (hit_record.point, ReflD, level) * hit_record.material->specular;
+        if (hit_record.material->reflect) {
+            auto reflection_direction = ray.direction() - 2 * n_dot_d * hit_record.normal;
+            color += RayTrace(Ray<VecType>(hit_record.point, reflection_direction), ++level)
+                     * hit_record.material->specular;
         }
     }
 
-private:
     World<VecType> world;
 };
 
