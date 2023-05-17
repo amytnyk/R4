@@ -16,7 +16,7 @@ public:
     }
 
     __host__ __device__ explicit Array(const T array[N]) {
-        memcpy(data, sizeof(T) * N, array, sizeof(T) * N);
+        memcpy(data,  array, sizeof(T) * N);
     }
 
     template<size_t I>

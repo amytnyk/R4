@@ -3,7 +3,6 @@
 
 #include <string>
 #include <sstream>
-#include <vector>
 #include <charconv>
 #include <unordered_map>
 #include <algorithm>
@@ -11,8 +10,7 @@
 #include <view.hpp>
 #include <light.hpp>
 #include <objects/sphere.hpp>
-#include <objects/triangle.hpp>
-#include <objects/parallelpiped.hpp>
+#include <objects/parallelepiped.hpp>
 #include <objects/tetrahedron.hpp>
 #include <objects/entity_list.hpp>
 
@@ -20,7 +18,10 @@ void attribute_parse(Material &material, std::stringstream &str_stream) {
     std::string key;
     str_stream >> key;
     while (key != ")") {
-        if (key == "reflect")
+        if (key == ">") {
+            std::string empty;
+            std::getline(str_stream, empty);
+        }else if (key == "reflect")
             str_stream >> material.reflect;
         else if (key == "shine")
             str_stream >> material.shine;
@@ -40,11 +41,13 @@ template<typename VecType>
 struct World {
     Color ambient{};
     Color background{};
-    View<VecType> view;
-    Vector<Light<VecType>> lights;
-    EntityList<VecType> entities;
+    View<VecType> view{};
+    Vector<Light<VecType>> lights{};
+    EntityList<VecType> entities{};
 
     VecType::value_type max_depth;
+
+    World() = default;
 
     __host__ explicit World(std::string data) {
         for (auto &c: data)
@@ -52,12 +55,13 @@ struct World {
 
         std::replace(data.begin(), data.end(), '[', ' ');
         std::replace(data.begin(), data.end(), ']', ' ');
+        std::replace(data.begin(), data.end(), ',', ' ');
         std::replace(data.begin(), data.end(), '{', ' ');
         std::replace(data.begin(), data.end(), '}', ' ');
-        data = std::regex_replace(data, std::regex("{"), "( ");
-        data = std::regex_replace(data, std::regex(")"), " )");
+        data = std::regex_replace(data, std::regex("\\("), "( ");
+        data = std::regex_replace(data, std::regex("\\)"), " )");
 
-        std::stringstream str_stream(data);
+        std::stringstream str_stream{data};
         std::string key;
         typename VecType::value_type value;
         std::string str_value;
@@ -67,37 +71,38 @@ struct World {
         typename VecType::value_type last_radius;
         Color last_color;
 
-        World<VecType> world;
-
         while (str_stream >> key) {
             if (key == ">") {
                 std::string empty;
                 std::getline(str_stream, empty);
             } else if (key == "ambient")
-                str_stream >> world.ambient;
+                str_stream >> ambient;
             else if (key == "background")
-                str_stream >> world.background;
+                str_stream >> background;
             else if (key == "maxdepth")
-                str_stream >> world.max_depth;
+                str_stream >> max_depth;
             else if (key == "view") {
                 while (key != ")") {
                     if (key == "from") {
-                        str_stream >> world.view.direction.origin();
+                        str_stream >> view.direction.origin();
                     } else if (key == "to") {
-                        str_stream >> world.view.direction.direction();
-                        world.view.direction.direction() -= world.view.direction.origin();
+                        str_stream >> view.direction.direction();
+                        view.direction.direction() -= view.direction.origin();
                     } else if (key == "up")
-                        str_stream >> world.view.up;
+                        str_stream >> view.up;
                     else if (key == "over")
-                        str_stream >> world.view.over;
+                        str_stream >> view.over;
                     else if (key == "angle")
-                        str_stream >> world.view.angle;
+                        str_stream >> view.angle;
                     str_stream >> key;
                 }
             } else if (key == "light") {
                 Light<VecType> cur_light;
                 while (key != ")") {
-                    if (key == "direction") {
+                    if (key == ">") {
+                        std::string empty;
+                        std::getline(str_stream, empty);
+                    }else if (key == "direction") {
                         cur_light.type = Light<VecType>::DIRECTIONAL;
                         str_stream >> cur_light.direction;
                     } else if (key == "position") {
@@ -108,7 +113,7 @@ struct World {
                     str_stream >> key;
                 }
                 cur_light.color = last_color;
-                world.lights.push(cur_light);
+                lights.push(cur_light);
             } else if (key == "attributes") {
                 Material material;
                 str_stream >> last_attr;
@@ -119,7 +124,10 @@ struct World {
                 Material material;
                 bool found_attr = false;
                 while (key != ")") {
-                    if (key == "center")
+                    if (key == ">") {
+                        std::string empty;
+                        std::getline(str_stream, empty);
+                    }else if (key == "center")
                         str_stream >> center;
                     else if (key == "radius")
                         str_stream >> last_radius;
@@ -135,13 +143,16 @@ struct World {
                 }
                 if (!found_attr)
                     material = attr_dict[last_attr];
-                world.entities.addChild(new Sphere{center, last_radius, material});
+                entities.addChild(new Sphere{center, last_radius, material});
             } else if (key == "parallelpiped") {
                 Array<VecType, VecType::dim> dots;
                 Material attr;
                 bool found_attr = false;
                 while (key != ")") {
-                    if (key == "vertices") {
+                    if (key == ">") {
+                        std::string empty;
+                        std::getline(str_stream, empty);
+                    }else if (key == "vertices") {
                         for (int i = 0; i < VecType::dim; ++i)
                             str_stream >> dots[i];
                     } else if (key == "attributes") {
@@ -156,13 +167,16 @@ struct World {
                 }
                 if (!found_attr)
                     attr = attr_dict[last_attr];
-                world.entities.addChild(new Parallelpiped<VecType>(dots, attr));
+                entities.addChild(new Parallelepiped<VecType>(dots, attr));
             } else if (key == "tetrahedron") {
                 Array<VecType, VecType::dim> dots;
                 Material material;
                 bool found_attr = false;
                 while (key != ")") {
-                    if (key == "vertices") {
+                    if (key == ">") {
+                        std::string empty;
+                        std::getline(str_stream, empty);
+                    }else if (key == "vertices") {
                         for (int i = 0; i < VecType::dim; ++i)
                             str_stream >> dots[i];
                     } else if (key == "attributes") {
@@ -177,7 +191,7 @@ struct World {
                 }
                 if (!found_attr)
                     material = attr_dict[last_attr];
-                world.entities.addChild(new Tetrahedron<VecType>(dots, material));
+                entities.addChild(new Tetrahedron<VecType>(dots, material));
             }
         }
     }

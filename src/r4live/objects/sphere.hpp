@@ -5,11 +5,13 @@
 
 template<typename VecType>
 class Sphere : public Entity<VecType> {
+    using Entity<VecType>::m_material;
+public:
 
     __host__ __device__ Sphere(const VecType &center,
                                VecType::value_type radius,
                                const Material &material)
-        : center{center}, radius{radius}, Entity<VecType>::material(material) {}
+        : center{center}, radius{radius}, Entity<VecType>(material) {}
 
     __host__ __device__ bool hit(const Ray<VecType> &ray,
                                   Hit<VecType> &hit_record) const override {
@@ -25,7 +27,7 @@ class Sphere : public Entity<VecType> {
                 hit_record.t = tmp;
                 hit_record.point = ray.at(tmp);
                 hit_record.normal = (hit_record.point - center) / radius;
-                hit_record.material = &Entity<VecType>::material;
+                hit_record.material = &m_material;
                 return true;
             }
             tmp = (-b + sqrt(discriminant)) / a;
@@ -33,7 +35,7 @@ class Sphere : public Entity<VecType> {
                 hit_record.t = tmp;
                 hit_record.point = ray.at(tmp);
                 hit_record.normal = (hit_record.point - center) / radius;
-                hit_record.material = &Entity<VecType>::material;
+                hit_record.material = &m_material;
                 return true;
             }
         }

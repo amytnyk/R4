@@ -10,8 +10,15 @@ public:
 
     Ray() = default;
 
-    __host__ __device__ Ray(const VecType &origin, const VecType &direction) : origin_m{origin_m},
-                                                                               direction_m{direction_m} {}
+    __host__ __device__ Ray(const VecType &origin, const VecType &direction) : origin_m{origin},
+                                                                               direction_m{direction} {}
+    __host__ __device__ inline auto &origin() {
+        return origin_m;
+    }
+
+    __host__ __device__ inline auto &direction() {
+        return direction_m;
+    }
 
     __host__ __device__ inline auto origin() const {
         return origin_m;

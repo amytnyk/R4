@@ -12,7 +12,6 @@
 #include "camera.hpp"
 #include "scene.hpp"
 #include "material.hpp"
-#include "parser/parser.hpp"
 #include "objects/sphere.hpp"
 #include "objects/triangle.hpp"
 #include "objects/entity.hpp"

@@ -4,7 +4,8 @@ find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(fmt REQUIRED)
 
-add_executable(${TARGET_NAME} main.cu
+add_executable(${TARGET_NAME}
+#        main.cu
         camera.hpp
         objects/entity.hpp
         objects/triangle.hpp
@@ -16,10 +17,16 @@ add_executable(${TARGET_NAME} main.cu
         array.hpp
         array2d.hpp
         matrix.hpp
-        parser/parser.hpp
         scene.hpp
         color.hpp
-        material.hpp objects/triangle.hpp view.hpp light.hpp objects/parallelpiped.hpp objects/tetrahedron.hpp world.hpp)
+        material.hpp
+        objects/triangle.hpp
+        view.hpp
+        light.hpp
+        objects/parallelepiped.hpp
+        objects/tetrahedron.hpp
+        world.hpp
+        new_main.cu)
 
 target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 

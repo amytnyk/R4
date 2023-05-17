@@ -2,6 +2,7 @@
 #define R4_VECTOR_HPP
 
 #include <utility>
+#include "light.hpp"
 
 template<typename T>
 class Vector {
@@ -46,7 +47,7 @@ public:
         auto old_data = data;
         data = new T[capacity];
 
-        memcpy_s(data, size_m * sizeof(T), old_data, size_m * sizeof(T));
+        memcpy(data, old_data, size_m * sizeof(T));
 
         delete[] old_data;
     }

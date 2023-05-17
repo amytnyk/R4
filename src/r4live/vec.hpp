@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <type_traits>
+#include <cfloat>
 #include <initializer_list>
 #include <cmath>
 #include "array.hpp"
@@ -105,6 +106,10 @@ public:
     __host__ __device__ inline auto &w() {
         return Array<T, N>::template get<3>();
     }
+
+    __host__ __device__ inline bool present() const {
+        return FLT_EPSILON <= norm_squared();
+    }
 };
 
 template<typename T, size_t N>
@@ -160,8 +165,13 @@ __host__ __device__ inline auto operator*(int k, Vec<T, N> rhs) {
 }
 
 template<typename T, size_t N>
-__host__ __device__ inline auto operator*(Vec<T, N> lhs, int k) {
+__host__ __device__ inline auto operator*(Vec<T, N> lhs, T k) {
     return lhs *= k;
+}
+
+template<typename T, size_t N>
+__host__ __device__ inline auto operator/(Vec<T, N> lhs, T k) {
+    return lhs /= k;
 }
 
 template<typename T, size_t N>
