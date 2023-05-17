@@ -4,7 +4,7 @@ find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(fmt REQUIRED)
 
-add_executable(${TARGET_NAME} main.cpp ../ray4/r4_image.h)
+add_executable(${TARGET_NAME} main.cpp ../ray4/r4_image.h Image.cpp Image.hpp)
 
 target_include_directories(${TARGET_NAME} PRIVATE ${fmt_INCLUDE_DIRS})
 target_link_libraries(${TARGET_NAME} fmt::fmt)

@@ -12,6 +12,8 @@ add_executable(${TARGET_NAME}
         r4_trace.c
         r4_vec.c)
 
-target_link_libraries(${TARGET_NAME} m)
+if (NOT WIN32)
+    target_link_libraries(${TARGET_NAME} m)
+endif ()
 
 set(TARGETS ${TARGETS} ${TARGET_NAME} PARENT_SCOPE)
