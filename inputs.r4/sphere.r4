@@ -20,14 +20,10 @@ Light
 
 Sphere
 (  center      0.0, 0.0, 0.0, 0.0
-   radius      5.0
+   radius      1.0
    Attributes
    (  ambient  [.555 .130 .350]
       diffuse  [.550 .130 .300]
-      specular [.700 .700 .700]
-      transpar [.000 .000 .000]
-      shine    16.0
-      reflect  0
    )
 )
 
@@ -37,9 +33,5 @@ Sphere
    Attributes (
       ambient  [0.220 0.020 0.800]
       diffuse  [0.220 0.020 0.800]
-      specular [0.220 0.020 0.800]
-      transpar [0.000 0.000 0.000]
-      shine    20.0
-      reflect    0
    )
 )

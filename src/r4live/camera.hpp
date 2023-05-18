@@ -48,11 +48,12 @@ public:
         auto direction = GridO +
                          GridX * relative_direction.x() +
                          GridY * relative_direction.y() +
-                         GridZ * relative_direction.z();
+                         GridZ * relative_direction.z() -
+                         origin;
         return Ray<Vec4d>{origin, direction};
     }
 
-private:
+//private:
     View<VecType> view;
     VecType GridX;
     VecType GridY;

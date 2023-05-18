@@ -5,6 +5,7 @@
 #include "../material.hpp"
 #include <nvfunctional>
 #include <utility>
+#include <iostream>
 
 class material;
 
@@ -14,7 +15,7 @@ struct Hit {
 
     const Material *material{};
 
-    VecType::value_type t{};
+    VecType::value_type t{std::numeric_limits<typename VecType::value_type>::max()};
     VecType point{};
     VecType normal{};
 };

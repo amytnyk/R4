@@ -160,7 +160,7 @@ __host__ __device__ inline auto cross(const Array<VecType, VecType::dim - 1> &ve
 }
 
 template<typename T, size_t N>
-__host__ __device__ inline auto operator*(int k, Vec<T, N> rhs) {
+__host__ __device__ inline auto operator*(T k, Vec<T, N> rhs) {
     return rhs *= k;
 }
 

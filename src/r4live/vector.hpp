@@ -56,7 +56,7 @@ public:
         delete[] data;
     }
 
-private:
+//private:
     T *data;
 
     size_t size_m;

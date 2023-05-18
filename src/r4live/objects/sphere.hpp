@@ -15,31 +15,29 @@ public:
 
     __host__ __device__ bool hit(const Ray<VecType> &ray,
                                   Hit<VecType> &hit_record) const override {
-        auto OC = ray.origin() - center;
-        auto dir = ray.direction();
-        auto a = dir.dot(dir);
-        auto b = dir.dot(OC);
-        auto c = OC.dot(OC) - radius*radius;
-        auto discriminant = b*b - a*c;
-        if (discriminant > 0) {
-            auto tmp = (-b - sqrt(discriminant)) / a;
-            if (tmp > 0) {
-                hit_record.t = tmp;
-                hit_record.point = ray.at(tmp);
-                hit_record.normal = (hit_record.point - center) / radius;
-                hit_record.material = &m_material;
-                return true;
-            }
-            tmp = (-b + sqrt(discriminant)) / a;
-            if (tmp > 0) {
-                hit_record.t = tmp;
-                hit_record.point = ray.at(tmp);
-                hit_record.normal = (hit_record.point - center) / radius;
-                hit_record.material = &m_material;
-                return true;
-            }
-        }
-        return false;
+        auto cdir = center - ray.origin();
+        auto bb = cdir.dot(ray.direction().unit());
+        auto rad = bb * bb - cdir.dot(cdir) + radius * radius;
+
+        if (rad <= 0.0)
+            return false;
+
+        rad = std::sqrt(rad);
+        auto t1 = bb + rad;
+        auto t2 = bb - rad;
+
+        if ((t1 < 0.0) || ((t2 > 0.0) && (t2 < t1)))
+            t1 = t2;
+
+        if (t1 <= 0.0)
+            return false;
+
+        hit_record.t = t1 / ray.direction().norm();
+        hit_record.point = ray.at(hit_record.t);
+        hit_record.normal = (hit_record.point - center) / radius;
+        hit_record.material = &m_material;
+
+        return true;
     }
 
 private:

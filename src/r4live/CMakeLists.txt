@@ -8,7 +8,6 @@ add_executable(${TARGET_NAME}
 #        main.cu
         camera.hpp
         objects/entity.hpp
-        objects/triangle.hpp
         objects/entity_list.hpp
         objects/sphere.hpp
         ray.hpp
@@ -20,7 +19,6 @@ add_executable(${TARGET_NAME}
         scene.hpp
         color.hpp
         material.hpp
-        objects/triangle.hpp
         view.hpp
         light.hpp
         objects/parallelepiped.hpp

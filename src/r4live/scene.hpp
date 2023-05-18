@@ -7,6 +7,8 @@
 #include <world.hpp>
 #include <objects/entity.hpp>
 #include <sstream>
+#include <ray.hpp>
+#include <iostream>
 
 template<typename VecType>
 class Scene {
@@ -19,6 +21,7 @@ public:
                                        const Camera<VecType> &camera) {
         return rayTrace(camera.ray_to(relative_direction));
     }
+
 private:
 
     std::string read_file(const std::string &path) {
@@ -28,7 +31,7 @@ private:
         return ss.str();
     }
 
-    __host__ __device__ Color rayTrace(Ray<VecType> ray, size_t level = 0) {
+    __host__ Color rayTrace(Ray<VecType> ray, size_t level = 0) {
         ray = ray.forward();
 
         Hit<VecType> hit_record;
@@ -48,7 +51,7 @@ private:
 
             auto intersection = Ray<VecType>{hit_record.point, hit_record.normal}.forward().origin();
 
-            for (size_t i = 0; i < world.lights.size(); ++ i) {
+            for (size_t i = 0; i < world.lights.size(); ++i) {
                 const auto &light = world.lights[i];
                 VecType light_direction;
                 typename VecType::value_type min_dist;
@@ -66,9 +69,11 @@ private:
 
                 Color light_color = light.color;
 
-                world.entities.call_for_hits(Ray<VecType>(hit_record.point, light_direction),
+                world.entities.call_for_hits(Ray<VecType>(hit_record.point, light_direction).forward(),
                                              [&light_color](const Entity<VecType> &entity) {
-                                                 light_color *= entity.material().transparent;
+                                                 light_color.x() *= entity.material().transparent.x();
+                                                 light_color.y() *= entity.material().transparent.y();
+                                                 light_color.z() *= entity.material().transparent.z();
                                              });
 
                 if (!light_color.present())
