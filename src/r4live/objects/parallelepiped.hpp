@@ -14,21 +14,20 @@ public:
 
     __host__ __device__ bool hit(const Ray<VecType> &ray,
                                  Hit<VecType> &hit_record) const override {
-        Vec4d temp[3] = {points[0] - points[1],
-                         points[0] - points[2],
-                         points[0] - points[3]};
+        Vec4d temp[3] = {points[1] - points[0],
+                         points[2] - points[0],
+                         points[3] - points[0]};
         Array<Vec4d, 3> vectors(temp);
-        auto space_norm = cross(vectors);
-        space_norm = space_norm.unit();
-        auto dist = space_norm.dot(points[0]);
-        if (space_norm.dot(ray.direction()) == 0) {
+        auto space_norm = cross(vectors).unit();
+        if (std::abs(space_norm.dot(ray.direction())) < FLT_EPSILON) {
             return false;
         }
-        auto time = -(space_norm.dot(ray.origin()) + dist) /
+        auto dist = space_norm.dot(points[0]);
+        auto time = (dist - space_norm.dot(ray.origin())) /
                     space_norm.dot(ray.direction());
         if (time < 0)
             return false;
-        auto intersect = ray.origin() + ray.direction() * time;
+        auto intersect = ray.at(time);
         auto dominant1 = (std::abs(space_norm[0]) > std::abs(space_norm[1])) ? 0 : 1;
         auto dominant2 = (std::abs(space_norm[2]) > std::abs(space_norm[3])) ? 2 : 3;
         size_t ax1, ax2, ax3;
@@ -64,23 +63,23 @@ public:
         auto determinant_1223_1322 = (A12 * A23) - (A13 * A22);
         auto determinant_b223_b322 = (b2 * A23) - (b3 * A22);
 
-        auto cramer_div = A11 * (A22*A33 - A23*A32)
-                    - A21 * (A12*A33 - A13*A32)
-                    + A31 * (A12*A23 - A13*A22);
+        auto cramer_div = A11 * (A22 * A33 - A23 * A32)
+                          - A21 * (A12 * A33 - A13 * A32)
+                          + A31 * (A12 * A23 - A13 * A22);
 
         auto x = ((b1 * determinant_2233_2332)
-               - (A21 * determinant_b233_b332)
-               + (A31 * determinant_b223_b322)) / cramer_div;
+                  - (A21 * determinant_b233_b332)
+                  + (A31 * determinant_b223_b322)) / cramer_div;
 
-        auto y = ((A11 * determinant_b233_b332 )
-               - (b1 * determinant_1233_1332)
-               + (A31 * determinant_12b3_13b2)) / cramer_div;
+        auto y = ((A11 * determinant_b233_b332)
+                  - (b1 * determinant_1233_1332)
+                  + (A31 * determinant_12b3_13b2)) / cramer_div;
 
         auto z = (-(A11 * determinant_b223_b322)
-               - (A21 * determinant_12b3_13b2)
-               + (b1 * determinant_1223_1322)) / cramer_div;
+                  - (A21 * determinant_12b3_13b2)
+                  + (b1 * determinant_1223_1322)) / cramer_div;
 
-        if ((x < 0) || (x > 1) || (y < 0) || (y > 1) || (z < 0) || (z > 1))
+        if (x < 0 || y < 0 || z < 0 || x > 1 || y > 1 || z > 1)
             return false;
 
         hit_record.normal = space_norm;

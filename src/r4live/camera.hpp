@@ -21,11 +21,11 @@ public:
         VecType los = view.direction.direction().unit();
 
         VecType temp1[3] = {view.over, view.up, los};
-        GridX = cross(Array<VecType, 3>{temp1}).unit();
-        VecType temp2[3] = {GridX, los, view.over};
+        GridZ = cross(Array<VecType, 3>{temp1}).unit();
+        VecType temp2[3] = {GridZ, los, view.over};
         GridY = cross(Array<VecType, 3>{temp2}).unit();
-        VecType temp3[3] = {GridX, GridY, los};
-        GridZ = cross(Array<VecType, 3>{temp3}).unit();
+        VecType temp3[3] = {GridY, GridZ, los};
+        GridX = cross(Array<VecType, 3>{temp3}).unit();
 
         size_x = 2 * view.direction.direction().norm() *
                  std::tan(view.angle / 2. * PI / 180);
@@ -50,7 +50,7 @@ public:
                          GridY * relative_direction.y() +
                          GridZ * relative_direction.z() -
                          origin;
-        return Ray<Vec4d>{origin, direction};
+        return Ray<Vec4d>{origin, direction.unit()};
     }
 
 //private:

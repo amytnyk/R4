@@ -64,12 +64,12 @@ struct World {
         std::stringstream str_stream{data};
         std::string key;
         typename VecType::value_type value;
-        std::string str_value;
 
         std::unordered_map<std::string, Material> attr_dict;
-        std::string last_attr;
         typename VecType::value_type last_radius;
         Color last_color;
+
+        Material material;
 
         while (str_stream >> key) {
             if (key == ">") {
@@ -115,14 +115,12 @@ struct World {
                 cur_light.color = last_color;
                 lights.push(cur_light);
             } else if (key == "attributes") {
-                Material material;
-                str_stream >> last_attr;
+                std::string attr_name;
+                str_stream >> attr_name;
                 attribute_parse(material, str_stream);
-                attr_dict[last_attr] = material;
+                attr_dict[attr_name] = material;
             } else if (key == "sphere") {
                 VecType center;
-                Material material;
-                bool found_attr = false;
                 while (key != ")") {
                     if (key == ">") {
                         std::string empty;
@@ -132,7 +130,6 @@ struct World {
                     else if (key == "radius")
                         str_stream >> last_radius;
                     else if (key == "attributes") {
-                        found_attr = true;
                         str_stream >> key;
                         if (key == "(")
                             attribute_parse(material, str_stream);
@@ -141,13 +138,9 @@ struct World {
                     }
                     str_stream >> key;
                 }
-                if (!found_attr)
-                    material = attr_dict[last_attr];
                 entities.addChild(new Sphere{center, last_radius, material});
             } else if (key == "parallelpiped") {
                 Array<VecType, VecType::dim> dots;
-                Material attr;
-                bool found_attr = false;
                 while (key != ")") {
                     if (key == ">") {
                         std::string empty;
@@ -156,31 +149,6 @@ struct World {
                         for (int i = 0; i < VecType::dim; ++i)
                             str_stream >> dots[i];
                     } else if (key == "attributes") {
-                        found_attr = true;
-                        str_stream >> key;
-                        if (key == "(")
-                            attribute_parse(attr, str_stream);
-                        else
-                            attr = attr_dict[key];
-                    }
-                    str_stream >> key;
-                }
-                if (!found_attr)
-                    attr = attr_dict[last_attr];
-                entities.addChild(new Parallelepiped<VecType>(dots, attr));
-            } else if (key == "tetrahedron") {
-                Array<VecType, VecType::dim> dots;
-                Material material;
-                bool found_attr = false;
-                while (key != ")") {
-                    if (key == ">") {
-                        std::string empty;
-                        std::getline(str_stream, empty);
-                    }else if (key == "vertices") {
-                        for (int i = 0; i < VecType::dim; ++i)
-                            str_stream >> dots[i];
-                    } else if (key == "attributes") {
-                        found_attr = true;
                         str_stream >> key;
                         if (key == "(")
                             attribute_parse(material, str_stream);
@@ -189,8 +157,25 @@ struct World {
                     }
                     str_stream >> key;
                 }
-                if (!found_attr)
-                    material = attr_dict[last_attr];
+                entities.addChild(new Parallelepiped<VecType>(dots, material));
+            } else if (key == "tetrahedron") {
+                Array<VecType, VecType::dim> dots;
+                while (key != ")") {
+                    if (key == ">") {
+                        std::string empty;
+                        std::getline(str_stream, empty);
+                    } else if (key == "vertices") {
+                        for (int i = 0; i < VecType::dim; ++i)
+                            str_stream >> dots[i];
+                    } else if (key == "attributes") {
+                        str_stream >> key;
+                        if (key == "(")
+                            attribute_parse(material, str_stream);
+                        else
+                            material = attr_dict[key];
+                    }
+                    str_stream >> key;
+                }
                 entities.addChild(new Tetrahedron<VecType>(dots, material));
             }
         }

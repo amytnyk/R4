@@ -31,8 +31,10 @@ private:
         return ss.str();
     }
 
-    __host__ Color rayTrace(Ray<VecType> ray, size_t level = 0) {
-        ray = ray.forward();
+    __host__ Color rayTrace(Ray<VecType> ray, size_t level = -1) {
+        ++level;
+
+        ray = Ray<VecType>{ray.origin(), ray.direction().unit()}.forward();
 
         Hit<VecType> hit_record;
         if (!world.entities.hit(ray, hit_record))
@@ -60,24 +62,27 @@ private:
                     light_direction = light.direction;
                 } else {
                     light_direction = light.position - hit_record.point;
-                    typename VecType::value_type norm = min_dist = light_direction.norm();
-                    if (norm < FLT_EPSILON)
-                        light_direction = hit_record.normal;
-                    else
-                        light_direction /= norm;
+                    if (light_direction.norm() < FLT_EPSILON)
+                        continue;
                 }
 
                 Color light_color = light.color;
 
                 world.entities.call_for_hits(Ray<VecType>(hit_record.point, light_direction).forward(),
-                                             [&light_color](const Entity<VecType> &entity) {
-                                                 light_color.x() *= entity.material().transparent.x();
-                                                 light_color.y() *= entity.material().transparent.y();
-                                                 light_color.z() *= entity.material().transparent.z();
+                                             [&light, &light_color](const Entity<VecType> &entity,
+                                                                    const VecType::value_type &t) {
+                                                 if (light.type == Light<VecType>::DIRECTIONAL ||
+                                                     t < static_cast<VecType::value_type>(1)) {
+                                                     light_color.x() *= entity.material().transparent.x();
+                                                     light_color.y() *= entity.material().transparent.y();
+                                                     light_color.z() *= entity.material().transparent.z();
+                                                 }
                                              });
 
                 if (!light_color.present())
                     continue;
+
+                light_direction = light_direction.unit();
 
                 auto tmp = hit_record.normal.dot(light_direction);
                 if (tmp <= 0)
@@ -90,7 +95,8 @@ private:
                     tmp = -refl.dot(ray.direction());
                     if (tmp > 0)
                         color +=
-                                std::pow(tmp, hit_record.material->shine) * hit_record.material->specular * light_color;
+                                std::pow(tmp, hit_record.material->shine) *
+                                hit_record.material->specular * light_color;
                 }
             }
         }
@@ -100,13 +106,13 @@ private:
 
         if (hit_record.material->transparent.present()) {
             auto direction = n_dot_d * hit_record.normal + ray.direction();
-            color += rayTrace(Ray<VecType>(hit_record.point, direction), ++level)
+            color += rayTrace(Ray<VecType>(hit_record.point, direction), level)
                      * hit_record.material->transparent;
         }
 
         if (hit_record.material->reflect) {
             auto reflection_direction = ray.direction() - 2 * n_dot_d * hit_record.normal;
-            color += rayTrace(Ray<VecType>(hit_record.point, reflection_direction), ++level)
+            color += rayTrace(Ray<VecType>(hit_record.point, reflection_direction), level)
                      * hit_record.material->specular;
         }
         return color;

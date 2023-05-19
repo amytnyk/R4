@@ -36,17 +36,16 @@ int main(int argc, char *argv[]) {
         depth = image.getDepth();
 
         glfwInit();
-        GLFWwindow *window = glfwCreateWindow(1024, 1024, "Render", nullptr, nullptr);
+        GLFWwindow *window = glfwCreateWindow(image.getWidth(), image.getHeight(), "Render", nullptr, nullptr);
         glfwMakeContextCurrent(window);
         glfwSetKeyCallback(window, key_callback);
 
         while (!glfwWindowShouldClose(window)) {
             glClear(GL_COLOR_BUFFER_BIT);
             std::cout << "\r" << current_plane << std::flush;
-
-            int width, height;
-            glfwGetWindowSize(window, &width, &height);
-            glPixelZoom((float) width / (float) image.getWidth(), (float) height / (float) image.getHeight());
+//            double xpos, ypos;
+//            glfwGetCursorPos(window, &xpos, &ypos);
+//            std::cout << xpos << " " << image.getHeight() - ypos << std::endl;
             glDrawPixels(image.getWidth(), image.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, image.slice(current_plane));
 
             glfwSwapBuffers(window);

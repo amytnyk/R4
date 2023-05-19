@@ -1,0 +1,39 @@
+> Blank space; used for testing and setting tiling sizes.
+
+Ambient	    1.0 1.0 1.0		> Global Ambient Light
+Background  .75 .55 .25		> Define the Background Color
+MaxDepth    10			> Maximum Ray Trace Depth (0 is infinite)
+
+View
+(  From    0.0, 0.0, 0.0, 0.0
+   To      0.0, 0.0, 1.0, 0.0
+   Up      0.0, 1.0, 0.0, 0.0
+   Over    0.0, 0.0, 0.0, 1.0
+   Angle   60.0
+)
+
+Light
+(  direction  -1 -1  -1  0
+   color [1 1 1]
+)
+
+Sphere
+(  center  0 0 10 0
+radius 5
+   Attributes
+   (  ambient  [.064 .117 .304]
+      diffuse  [.064 .117 .304]
+   )
+)
+
+Tetrahedron			> Face 1
+(  Attributes
+      (  ambient  [.064 .117 .304]
+         diffuse  [.064 .117 .304]
+      )
+   Vertices
+      10 0 10 0.01
+      -10 0 10 0.02
+      0 16 10 -0.01
+      0 0 3 0.03
+)

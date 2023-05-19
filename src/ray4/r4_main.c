@@ -630,6 +630,9 @@ void  FireRays  ()
 
                 /* Fire the ray. */
 
+                if (Xindex == 180 && Yindex == 150)
+                    color.r = color.r;
+
                 RayTrace (Vfrom, Dir, &color, (ulong)(0));
 
                 /* Scale the resulting color to 0-255. */

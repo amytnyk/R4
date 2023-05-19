@@ -35,7 +35,7 @@ short V4_Normalize (Vector4 V)
 {
     double norm;    /* Norm of the Vector */
 
-    norm = V4_Dot (V,V);
+    norm = V4_Norm (V);
 
     if (norm < 1e-30) return 0;
 

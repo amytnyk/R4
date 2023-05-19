@@ -51,7 +51,7 @@ endfunction ()
 # Helper function to get compilers used by a target.
 function (sanitizer_target_compilers TARGET RETURN_VAR)
     # Check if all sources for target use the same compiler. If a target uses
-    # e.g. C and Fortran mixed and uses different compilers (e.g. clang and
+    # e.cur_plane. C and Fortran mixed and uses different compilers (e.cur_plane. clang and
     # gfortran) this can trigger huge problems, because different compilers may
     # use different implementations for sanitizers.
     set(BUFFER "")

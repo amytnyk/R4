@@ -24,7 +24,8 @@ public:
 
     __host__ __device__ void call_for_hits(
             const Ray<VecType> &ray,
-            const nvstd::function<void(const Entity<VecType>&)> &lambda) const override {
+            const nvstd::function<void(const Entity<VecType>&,
+                                       const typename VecType::value_type &)> &lambda) const override {
         for (size_t i = 0; i < children.size(); ++i)
             children[i]->call_for_hits(ray, lambda);
     }

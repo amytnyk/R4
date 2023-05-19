@@ -31,17 +31,19 @@ public:
             : m_material(std::move(material)) {}
 
     __host__ __device__ Entity(const Entity &entity) = delete;
-    __host__ __device__ Entity& operator=(const Entity &entity) = delete;
+
+    __host__ __device__ Entity &operator=(const Entity &entity) = delete;
 
     __host__ __device__ virtual bool hit(const Ray<VecType> &ray,
                                          Hit<VecType> &hit_record) const = 0;
 
     __host__ __device__ virtual void call_for_hits(
             const Ray<VecType> &ray,
-            const nvstd::function<void(const Entity<VecType> &)> &lambda) const {
+            const nvstd::function<void(const Entity<VecType> &,
+                                       const typename VecType::value_type &)> &lambda) const {
         Hit<VecType> temp_hit{};
         if (hit(ray, temp_hit))
-            lambda(*this);
+            lambda(*this, temp_hit.t);
     }
 
     __host__ __device__ Material &material() {
